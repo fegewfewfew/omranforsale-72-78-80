@@ -37,8 +37,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // إعداد مستمع تغيير حالة المصادقة FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth state changed:', event, session);
+        
         setSession(session);
+        
         if (session?.user) {
+          // تخزين الجلسة في localStorage
+          localStorage.setItem('supabase_session', JSON.stringify(session));
+          
           // إنشاء كائن مستخدم من بيانات Supabase
           const supabaseUser: User = {
             id: session.user.id,
@@ -57,6 +63,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setIsAuthenticated(true);
           storage.setItem('current_user', supabaseUser);
         } else {
+          // حذف الجلسة من localStorage عند تسجيل الخروج
+          localStorage.removeItem('supabase_session');
           setUser(null);
           setIsAuthenticated(false);
           storage.removeItem('current_user');
@@ -64,27 +72,59 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     );
 
-    // ثم التحقق من الجلسة الحالية
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session?.user) {
-        const supabaseUser: User = {
-          id: session.user.id,
-          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'مستخدم',
-          email: session.user.email || '',
-          phone: session.user.user_metadata?.phone || '',
-          role: DefaultRoles[0],
-          isActive: true,
-          createdAt: session.user.created_at,
-          lastLogin: new Date().toISOString(),
-          permissions: DefaultPermissions,
-          avatar: session.user.user_metadata?.avatar_url,
-          department: 'عام'
-        };
-        setUser(supabaseUser);
-        setIsAuthenticated(true);
-        storage.setItem('current_user', supabaseUser);
+    // استرجاع الجلسة المحفوظة عند بدء التطبيق
+    const restoreSession = async () => {
+      try {
+        const savedSession = localStorage.getItem('supabase_session');
+        if (savedSession) {
+          const sessionData = JSON.parse(savedSession);
+          
+          // التحقق من انتهاء صلاحية الجلسة
+          const expiresAt = new Date(sessionData.expires_at * 1000);
+          const now = new Date();
+          
+          if (expiresAt > now) {
+            // إعادة تعيين الجلسة إذا كانت صالحة
+            await supabase.auth.setSession({
+              access_token: sessionData.access_token,
+              refresh_token: sessionData.refresh_token
+            });
+            console.log('Session restored from localStorage');
+          } else {
+            // حذف الجلسة المنتهية الصلاحية
+            localStorage.removeItem('supabase_session');
+            console.log('Expired session removed');
+          }
+        }
+      } catch (error) {
+        console.error('Error restoring session:', error);
+        localStorage.removeItem('supabase_session');
       }
+    };
+
+    // استرجاع الجلسة أولاً
+    restoreSession().then(() => {
+      // ثم التحقق من الجلسة الحالية
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) {
+          const supabaseUser: User = {
+            id: session.user.id,
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'مستخدم',
+            email: session.user.email || '',
+            phone: session.user.user_metadata?.phone || '',
+            role: DefaultRoles[0],
+            isActive: true,
+            createdAt: session.user.created_at,
+            lastLogin: new Date().toISOString(),
+            permissions: DefaultPermissions,
+            avatar: session.user.user_metadata?.avatar_url,
+            department: 'عام'
+          };
+          setUser(supabaseUser);
+          setIsAuthenticated(true);
+          storage.setItem('current_user', supabaseUser);
+        }
+      });
     });
 
     return () => subscription.unsubscribe();
