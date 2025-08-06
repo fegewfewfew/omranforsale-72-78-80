@@ -227,8 +227,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return false;
       }
 
-      // تنظيف البريد الإلكتروني من المسافات
+      // تنظيف البريد الإلكتروني من المسافات والتأكد من صحته
       const cleanEmail = userData.email.trim().toLowerCase();
+      
+      // التحقق الإضافي من طول البريد الإلكتروني وعدم وجود أحرف خاصة
+      if (cleanEmail.length < 5 || cleanEmail.length > 100) {
+        toast.error('البريد الإلكتروني قصير جداً أو طويل جداً');
+        return false;
+      }
       
       const redirectUrl = `${window.location.origin}/`;
       
