@@ -220,19 +220,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
     phone?: string;
   }): Promise<boolean> => {
     try {
-      // التأكد من صحة البريد الإلكتروني قبل الإرسال
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      // التأكد من صحة البريد الإلكتروني قبل الإرسال - تحسين التحقق
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       if (!emailRegex.test(userData.email)) {
-        toast.error('البريد الإلكتروني غير صحيح');
+        toast.error('صيغة البريد الإلكتروني غير صحيحة');
         return false;
       }
 
       // تنظيف البريد الإلكتروني من المسافات والتأكد من صحته
       const cleanEmail = userData.email.trim().toLowerCase();
       
-      // التحقق الإضافي من طول البريد الإلكتروني وعدم وجود أحرف خاصة
+      // التحقق الإضافي من طول البريد الإلكتروني
       if (cleanEmail.length < 5 || cleanEmail.length > 100) {
         toast.error('البريد الإلكتروني قصير جداً أو طويل جداً');
+        return false;
+      }
+
+      // التحقق من عدم وجود أحرف غريبة
+      if (cleanEmail.includes('..') || cleanEmail.startsWith('.') || cleanEmail.endsWith('.')) {
+        toast.error('صيغة البريد الإلكتروني غير صحيحة');
         return false;
       }
       
