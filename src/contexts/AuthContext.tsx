@@ -180,37 +180,58 @@ export function AuthProvider({ children }: AuthProviderProps) {
     phone?: string;
   }): Promise<boolean> => {
     try {
+      // التأكد من صحة البريد الإلكتروني قبل الإرسال
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(userData.email)) {
+        toast.error('البريد الإلكتروني غير صحيح');
+        return false;
+      }
+
+      // تنظيف البريد الإلكتروني من المسافات
+      const cleanEmail = userData.email.trim().toLowerCase();
+      
       const redirectUrl = `${window.location.origin}/`;
       
       const { data, error } = await supabase.auth.signUp({
-        email: userData.email,
+        email: cleanEmail,
         password: userData.password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
             name: userData.username,
-            phone: userData.phone
+            phone: userData.phone || ''
           }
         }
       });
 
       if (error) {
-        if (error.message.includes('already registered')) {
+        console.error('Registration error:', error);
+        
+        if (error.message.includes('already registered') || error.message.includes('email_taken')) {
           toast.error('البريد الإلكتروني مسجل من قبل');
+        } else if (error.message.includes('invalid') && error.message.includes('email')) {
+          toast.error('البريد الإلكتروني غير صحيح. تأكد من كتابته بشكل صحيح');
+        } else if (error.message.includes('password')) {
+          toast.error('كلمة المرور ضعيفة. يجب أن تكون 6 أحرف على الأقل');
         } else {
-          toast.error('حدث خطأ أثناء إنشاء الحساب');
+          toast.error(`خطأ في إنشاء الحساب: ${error.message}`);
         }
         return false;
       }
 
       if (data.user) {
-        toast.success('تم إنشاء الحساب بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب');
+        if (data.user.email_confirmed_at) {
+          toast.success('تم إنشاء الحساب وتفعيله بنجاح!');
+        } else {
+          toast.success('تم إنشاء الحساب بنجاح! تحقق من بريدك الإلكتروني لتأكيد الحساب');
+        }
         return true;
       }
 
       return false;
     } catch (error) {
-      toast.error('حدث خطأ أثناء إنشاء الحساب');
+      console.error('Registration catch error:', error);
+      toast.error('حدث خطأ أثناء إنشاء الحساب. يرجى المحاولة مرة أخرى');
       return false;
     }
   };
