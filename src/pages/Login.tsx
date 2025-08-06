@@ -192,6 +192,14 @@ export default function LoginPage() {
                   إنشاء حساب
                 </Link>
               </p>
+              <p className="text-sm text-muted-foreground font-cairo">
+                <Link 
+                  to="/forgot-password"
+                  className="text-primary hover:text-primary-hover font-medium transition-colors font-cairo no-underline"
+                >
+                  نسيت كلمة المرور؟
+                </Link>
+              </p>
               <p className="text-xs text-muted-foreground font-cairo">
                 <button 
                   onClick={() => setSupportDialogOpen(true)}

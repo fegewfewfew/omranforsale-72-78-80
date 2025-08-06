@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import React, { Suspense, lazy } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -107,6 +107,16 @@ function App() {
                        <Routes>
                         <Route path="/login" element={<Login />} />
                         <Route path="/register" element={<Register />} />
+                         <Route path="/forgot-password" element={
+                           <Suspense fallback={<div className="p-4">جاري التحميل...</div>}>
+                             {React.createElement(lazy(() => import('./pages/ForgotPassword')))}
+                           </Suspense>
+                         } />
+                         <Route path="/reset-password" element={
+                           <Suspense fallback={<div className="p-4">جاري التحميل...</div>}>
+                             {React.createElement(lazy(() => import('./pages/ResetPassword')))}
+                           </Suspense>
+                         } />
                         <Route path="/" element={
                           <ProtectedRoute>
                             <Index />
