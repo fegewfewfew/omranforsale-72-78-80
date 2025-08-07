@@ -22,7 +22,8 @@ interface ModularAppContextType {
 const ModularAppContext = createContext<ModularAppContextType | undefined>(undefined);
 
 export function ModularAppProvider({ children }: { children: ReactNode }) {
-  const { toast } = useToast();
+  // Remove useToast to prevent circular dependency - will be added back later when needed
+  // const { toast } = useToast();
   const [isInitialized, setIsInitialized] = useState(false);
   const [pluginsLoaded, setPluginsLoaded] = useState(false);
 
@@ -46,20 +47,9 @@ export function ModularAppProvider({ children }: { children: ReactNode }) {
       setIsInitialized(true);
       
       console.log('Modular app system initialized successfully');
-      
-      toast({
-        title: "تم تهيئة النظام",
-        description: "تم تحميل جميع الوحدات بنجاح",
-      });
 
     } catch (error) {
       console.error('System initialization failed:', error);
-      
-      toast({
-        title: "خطأ في التهيئة",
-        description: "حدث خطأ أثناء تهيئة النظام",
-        variant: "destructive",
-      });
 
       // إعادة المحاولة بعد 5 ثوانٍ
       setTimeout(initializeSystem, 5000);
@@ -75,18 +65,9 @@ export function ModularAppProvider({ children }: { children: ReactNode }) {
       await pluginSystem.cleanup();
       await initializeSystem();
       
-      toast({
-        title: "تم إعادة التحميل",
-        description: "تم إعادة تحميل جميع الوحدات بنجاح",
-      });
+      console.log('Plugins reloaded successfully');
     } catch (error) {
       console.error('Plugin reload failed:', error);
-      
-      toast({
-        title: "خطأ في إعادة التحميل",
-        description: "فشل في إعادة تحميل الوحدات",
-        variant: "destructive",
-      });
     }
   };
 
@@ -99,10 +80,7 @@ export function ModularAppProvider({ children }: { children: ReactNode }) {
         const mainResult = results[0] as any;
         
         if (mainResult.success) {
-          toast({
-            title: "تم البيع بنجاح",
-            description: "تم تحديث المخزون والحسابات",
-          });
+          console.log('Sale processed successfully');
         }
         
         return mainResult;
