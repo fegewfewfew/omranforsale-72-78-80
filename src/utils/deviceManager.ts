@@ -142,21 +142,39 @@ export async function isDeviceAuthorized(userId: string): Promise<boolean> {
 // الحصول على جميع أجهزة المستخدم
 export async function getUserDevices(userId: string) {
   try {
+    // استخدام التخزين المحلي كحل بديل
+    const localDevices = localStorage.getItem(`user_devices_${userId}`);
+    if (localDevices) {
+      return JSON.parse(localDevices);
+    }
+
+    // محاولة الاتصال بـ Supabase مع timeout محدود
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
     const { data, error } = await supabase
       .from('user_devices')
       .select('*')
       .eq('user_id', userId)
-      .order('last_login', { ascending: false });
+      .order('last_login', { ascending: false })
+      .abortSignal(controller.signal);
+
+    clearTimeout(timeoutId);
 
     if (error) {
-      console.error('خطأ في جلب أجهزة المستخدم:', error);
-      return [];
+      console.warn('تعذر الاتصال بقاعدة البيانات، استخدام البيانات المحلية');
+      return JSON.parse(localStorage.getItem(`user_devices_${userId}`) || '[]');
+    }
+
+    // حفظ البيانات محلياً كنسخة احتياطية
+    if (data) {
+      localStorage.setItem(`user_devices_${userId}`, JSON.stringify(data));
     }
 
     return data || [];
   } catch (error) {
-    console.error('خطأ في جلب أجهزة المستخدم:', error);
-    return [];
+    console.warn('استخدام التخزين المحلي للأجهزة');
+    return JSON.parse(localStorage.getItem(`user_devices_${userId}`) || '[]');
   }
 }
 

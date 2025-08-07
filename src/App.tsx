@@ -56,6 +56,7 @@ const Returns = lazy(() => import("./pages/Returns"));
 const SystemIntegration = lazy(() => import("./pages/SystemIntegration"));
 const SecureInventoryDashboard = lazy(() => import("./components/inventory/SecureInventoryDashboard"));
 const ProductDisplay = lazy(() => import("./pages/ProductDisplay"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 
 // تحميل مسبق محسن ومتدرج للصفحات المهمة
 setTimeout(() => {
@@ -253,15 +254,15 @@ function App() {
                         <Route path="/settings" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><Settings /></Suspense></AppLayout></ProtectedRoute>} />
                         <Route path="/documentation" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><Documentation /></Suspense></AppLayout></ProtectedRoute>} />
                         
-                        <Route path="/monitoring" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><MonitoringPage /></Suspense></AppLayout></ProtectedRoute>} />
-                        <Route path="/system-integration" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SystemIntegration /></Suspense></AppLayout></ProtectedRoute>} />
-                        <Route path="/secure-inventory" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SecureInventoryDashboard /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/monitoring" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><MonitoringPage /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/system-health" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SystemHealth /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/system-integration" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SystemIntegration /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/secure-inventory" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SecureInventoryDashboard /></Suspense></AppLayout></ProtectedRoute>} />
                         
-                        <Route path="/reports/profit" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Profit /></Suspense></AppLayout></ProtectedRoute>} />
-                        <Route path="/reports/sales" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Sales /></Suspense></AppLayout></ProtectedRoute>} />
-                        <Route path="/reports/purchases" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Purchases /></Suspense></AppLayout></ProtectedRoute>} />
-                        <Route path="/reports/inventory" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Inventory /></Suspense></AppLayout></ProtectedRoute>} />
-                         <Route path="/reports/comparative" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Comparative /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/reports/profit" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Profit /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/reports/sales" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Sales /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/reports/purchases" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Purchases /></Suspense></AppLayout></ProtectedRoute>} />
+                         <Route path="/reports/inventory" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><ReportsBundle.Inventory /></Suspense></AppLayout></ProtectedRoute>} />
                          <Route path="/reports/checks" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><LazyComponentWrapper><ChecksReport /></LazyComponentWrapper></Suspense></AppLayout></ProtectedRoute>} />
                         
                         <Route path="/sales/dashboard" element={<ProtectedRoute><AppLayout><Suspense fallback={<div className="p-4">جاري التحميل...</div>}><SalesBundle.Dashboard /></Suspense></AppLayout></ProtectedRoute>} />

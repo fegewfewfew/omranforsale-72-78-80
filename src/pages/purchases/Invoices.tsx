@@ -129,27 +129,14 @@ export default function PurchaseInvoices() {
   };
 
   const handleAddInvoice = () => {
-    console.log('=== handleAddInvoice START ===');
-    console.log('handleAddInvoice called with data:', newInvoice);
-    console.log('Dialog state before:', isAddDialogOpen);
-    
     if (!newInvoice.supplier || !newInvoice.productName || !newInvoice.quantity || !newInvoice.total) {
-      console.log('Validation failed:', {
-        supplier: !!newInvoice.supplier,
-        productName: !!newInvoice.productName,
-        quantity: !!newInvoice.quantity,
-        total: !!newInvoice.total
-      });
       toast({
         title: "خطأ",
         description: "يرجى ملء جميع الحقول المطلوبة",
         variant: "destructive",
       });
-      console.log('=== handleAddInvoice END (validation failed) ===');
       return;
     }
-
-    console.log('Validation passed, creating invoice...');
 
     const invoice: PurchaseInvoice = {
       id: Date.now().toString(),
@@ -211,25 +198,19 @@ export default function PurchaseInvoices() {
     };
 
     // معالجة الفاتورة عبر نظام التكامل
-    console.log('Processing integrated purchase invoice:', integratedPurchaseInvoice);
     let success = true;
     try {
       success = businessIntegration.processPurchaseInvoice(integratedPurchaseInvoice);
-      console.log('Business integration result:', success);
     } catch (error) {
       console.error('Error processing purchase invoice:', error);
       success = false;
     }
     
-    console.log('About to check success condition, success =', success);
-    
     if (success) {
-      console.log('SUCCESS BLOCK: Processing successful, saving invoice...');
       // حفظ الفاتورة
       const updatedInvoices = [...invoices, invoice];
       setInvoices(updatedInvoices);
       localStorage.setItem('purchase_invoices', JSON.stringify(updatedInvoices));
-      console.log('Invoice saved to localStorage');
       
       // تحديث قائمة الموردين
       updateSuppliersList(newInvoice.supplier);
@@ -240,29 +221,22 @@ export default function PurchaseInvoices() {
       // Sync inventory data after successful purchase
       inventoryManager.syncProductsWithStock();
       
-      console.log('About to close dialog, current state:', isAddDialogOpen);
       // إغلاق النافذة فوراً بعد النجاح
       setIsAddDialogOpen(false);
-      console.log('Dialog close command sent');
       
       // إعادة تعيين النموذج
       resetForm();
-      console.log('Form reset completed');
       
       toast({
         title: "تم إضافة الفاتورة",
         description: "تم إضافة فاتورة الشراء وتحديث المخزون بنجاح",
       });
-      
-      console.log('=== handleAddInvoice END (success) ===');
     } else {
-      console.log('FAILURE BLOCK: Processing failed');
       toast({
         title: "خطأ",
         description: "فشل في معالجة فاتورة الشراء",
         variant: "destructive",
       });
-      console.log('=== handleAddInvoice END (failure) ===');
     }
   };
 

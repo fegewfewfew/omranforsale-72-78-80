@@ -28,7 +28,8 @@ import {
   FolderOpen,
   RotateCcw,
   Link,
-  Shield
+  Shield,
+  Activity
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -126,7 +127,6 @@ const navigationItems: NavItem[] = [
         { title: "تقرير المبيعات", href: "/reports/sales", icon: ShoppingCart },
         { title: "تقرير المشتريات", href: "/reports/purchases", icon: Truck },
         { title: "تقرير المخزون", href: "/reports/inventory", icon: Package },
-        { title: "التقارير المقارنة", href: "/reports/comparative", icon: BarChart3 },
       ],
    },
    {
@@ -149,16 +149,21 @@ const navigationItems: NavItem[] = [
     href: "/installments",
     icon: CreditCard,
   },
-  {
-    title: "نظام التكامل",
-    href: "/system-integration",
-    icon: Link,
-  },
-  {
-    title: "الإعدادات",
-    href: "/settings",
-    icon: Settings,
-  },
+   {
+     title: "صحة النظام",
+     href: "/system-health",
+     icon: Activity,
+   },
+   {
+     title: "نظام التكامل",
+     href: "/system-integration",
+     icon: Link,
+   },
+   {
+     title: "الإعدادات",
+     href: "/settings",
+     icon: Settings,
+   },
 ];
 
 function NavItemComponent({ item, level = 0 }: { item: NavItem; level?: number }) {

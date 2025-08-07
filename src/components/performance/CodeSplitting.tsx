@@ -69,7 +69,6 @@ export const ReportsBundle = {
   Purchases: createLazyComponent(() => import("@/pages/reports/Purchases")),
   Inventory: createLazyComponent(() => import("@/pages/reports/Inventory")),
   Profit: createLazyComponent(() => import("@/pages/reports/Profit")),
-  Comparative: createLazyComponent(() => import("@/pages/reports/Comparative")),
 };
 
 export const EmployeesBundle = {

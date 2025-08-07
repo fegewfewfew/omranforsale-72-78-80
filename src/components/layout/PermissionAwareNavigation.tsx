@@ -251,13 +251,6 @@ export const navigationItemsWithPermissions: NavItem[] = [
         action: "read"
       },
       { 
-        title: "التقارير المقارنة", 
-        href: "/reports/comparative", 
-        icon: require("lucide-react").BarChart3,
-        module: "reports",
-        action: "read"
-      },
-      { 
         title: "التقارير الموحدة", 
         href: "/reports/unified", 
         icon: require("lucide-react").Activity,
