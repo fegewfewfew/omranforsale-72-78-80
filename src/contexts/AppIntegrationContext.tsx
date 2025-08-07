@@ -3,7 +3,7 @@ import { businessIntegration } from '@/utils/businessIntegration';
 import { inventoryManager } from '@/utils/inventoryUtils';
 import { storage } from '@/utils/storage';
 import { appInitializer } from '@/utils/appInitializer';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { cashFlowManager } from '@/utils/cashFlowManager';
 import { dataSyncManager } from '@/utils/dataSync';
 
@@ -18,7 +18,7 @@ interface AppIntegrationContextType {
 const AppIntegrationContext = createContext<AppIntegrationContextType | undefined>(undefined);
 
 export function AppIntegrationProvider({ children }: { children: ReactNode }) {
-  const { toast } = useToast();
+  
 
   // Initialize app using comprehensive initializer
   const initializeApp = async () => {
