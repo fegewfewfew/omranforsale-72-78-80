@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { reportDataGenerator } from "@/utils/reportDataGenerator";
 import { storage } from "@/utils/storage";
+import { unifiedReportsManager } from "@/utils/unifiedReportsManager";
 
 interface KPICardProps {
   title: string;
@@ -116,34 +117,38 @@ export function KPICards() {
       const inventoryData = reportDataGenerator.getInventoryReportData();
       // بيانات العملاء
       const customers = storage.getItem('customers', []);
-      
-      // حساب مبيعات اليوم
+
+      // حساب مبيعات اليوم من فواتير اليوم مباشرة
       const today = new Date().toISOString().split('T')[0];
-      const todaySales = salesData.dailySales?.find(day => 
-        new Date().toLocaleDateString('ar-EG', { weekday: 'short' }) === day.day
-      )?.sales || 0;
-
-      // حساب عدد الفواتير اليوم
       const salesInvoices = storage.getItem('sales_invoices', []);
-      const todayInvoices = salesInvoices.filter(invoice => 
+      const todayInvoicesList = salesInvoices.filter((invoice: any) =>
         new Date(invoice.date).toISOString().split('T')[0] === today
-      ).length;
+      );
+      const todayInvoices = todayInvoicesList.length;
+      const todaySales = todayInvoicesList.reduce((sum: number, inv: any) => sum + (inv.total || 0), 0);
 
-      // حساب العملاء الجدد هذا الشهر
-      const currentMonth = new Date().getMonth();
-      const currentYear = new Date().getFullYear();
-      const newCustomers = customers.filter(customer => {
+      // صافي الربح الشهري الحقيقي
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999).toISOString();
+      const profitReport = unifiedReportsManager.getComprehensiveProfitReport(monthStart, monthEnd);
+      const monthlyNetProfit = profitReport?.profitability?.netProfit || 0;
+
+      // العملاء الجدد هذا الشهر
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const newCustomers = customers.filter((customer: any) => {
         const customerDate = new Date(customer.createdAt || customer.registrationDate || Date.now());
         return customerDate.getMonth() === currentMonth && customerDate.getFullYear() === currentYear;
       }).length;
 
-      // حساب الأرباح (تقدير بسيط: المبيعات - تكلفة المنتجات)
-      const monthlyProfit = salesData.totalRevenue * 0.3; // تقدير 30% ربح
+      // قيمة المخزون الإجمالية
+      const inventoryTotalValue = inventoryData.totalValue || 0;
 
       const updatedKpiData = [
         {
           title: "إجمالي المبيعات اليوم",
-          value: `${(todaySales || 0).toLocaleString()} ج.م`,
+          value: `${todaySales.toLocaleString()} ج.م`,
           change: todaySales > 0 ? "+15%" : "0%",
           changeType: todaySales > 0 ? "positive" as const : "neutral" as const,
           icon: DollarSign,
@@ -159,11 +164,11 @@ export function KPICards() {
         },
         {
           title: "قيمة المخزون",
-          value: "0 ج.م",
-          change: "لا توجد بيانات",
+          value: `${inventoryTotalValue.toLocaleString()} ج.م`,
+          change: "—",
           changeType: "neutral" as const,
           icon: Package,
-          description: "",
+          description: "إجمالي",
         },
         {
           title: "العملاء الجدد",
@@ -183,11 +188,11 @@ export function KPICards() {
         },
         {
           title: "الأرباح الشهرية",
-          value: `${(monthlyProfit || 0).toLocaleString()} ج.م`,
-          change: monthlyProfit > 0 ? "+12%" : "0%",
-          changeType: monthlyProfit > 0 ? "positive" as const : "neutral" as const,
+          value: `${monthlyNetProfit.toLocaleString()} ج.م`,
+          change: monthlyNetProfit > 0 ? "+12%" : "0%",
+          changeType: monthlyNetProfit > 0 ? "positive" as const : "neutral" as const,
           icon: TrendingUp,
-          description: "تقدير",
+          description: "الشهر الحالي",
         },
       ];
 
