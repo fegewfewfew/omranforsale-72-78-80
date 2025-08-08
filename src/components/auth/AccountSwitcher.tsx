@@ -192,6 +192,25 @@ export function AccountSwitcher() {
     return `منذ ${Math.floor(diffInHours / 24)} يوم`;
   };
 
+  // عرض التاريخ الميلادي بدل الهجري
+  const formatGregorianDateTime = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      return d.toLocaleString('ar-EG', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        calendar: 'gregory',
+        numberingSystem: 'latn'
+      });
+    } catch {
+      return '';
+    }
+  };
+
   if (!user) return null;
 
   return (
@@ -371,7 +390,7 @@ export function AccountSwitcher() {
                         </p>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <Clock className="h-3 w-3" />
-                          آخر نشاط: {formatLastLogin(device.last_login)}
+                          آخر نشاط: {formatGregorianDateTime(device.last_login)}
                         </div>
                       </div>
                     </div>
