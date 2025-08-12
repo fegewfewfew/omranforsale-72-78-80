@@ -9,6 +9,7 @@ import { InvestorProvider } from "@/contexts/InvestorContext";
 import { ModularAppProvider } from "@/core/ModularAppContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { AppIntegrationProvider } from "@/contexts/AppIntegrationContext";
+import { LocalAccountsProvider } from "@/contexts/LocalAccountsContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { OfflineIndicator } from "@/components/ui/offline-indicator";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
@@ -86,12 +87,13 @@ function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <ModularAppProvider>
-            <AppIntegrationProvider>
-              <CustomerProvider>
-                <InvestorProvider>
-                  <Toaster />
-                  <Sonner />
+          <LocalAccountsProvider>
+            <ModularAppProvider>
+              <AppIntegrationProvider>
+                <CustomerProvider>
+                  <InvestorProvider>
+                    <Toaster />
+                    <Sonner />
                   <OfflineIndicator />
                   {/* PerformanceMonitor removed to debug React context issues */}
                   <PWAInstaller />
@@ -275,9 +277,10 @@ function App() {
               </CustomerProvider>
             </AppIntegrationProvider>
           </ModularAppProvider>
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+        </LocalAccountsProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
   );
 }
 

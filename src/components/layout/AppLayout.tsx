@@ -12,6 +12,7 @@ import { HelpCenter } from "@/components/ui/help-center";
 import { OperationFeedback, useOperationProgress } from "@/components/ui/operation-feedback";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { AccountSwitcher } from "@/components/auth/AccountSwitcher";
+import { LocalAccountSwitcher } from "@/components/accounts/LocalAccountSwitcher";
 
 interface AppLayoutProps {
   children?: React.ReactNode;
@@ -123,15 +124,15 @@ export function AppLayout({ children }: AppLayoutProps) {
           {/* Right side - Actions */}
           <div className="flex items-center gap-2">
             <HelpCenter />
-            
             <Button variant="ghost" size="sm" onClick={toggleDarkMode}>
               {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
             </Button>
-            
             <NotificationButton />
-            
+            {/* Local company/account switcher */}
+            {/** Keeps data scoped per company (offline) **/}
+            <LocalAccountSwitcher />
+            {/* Auth account switcher */}
             <AccountSwitcher />
-            
             <UserProfile darkMode={darkMode} onToggleDarkMode={toggleDarkMode} />
           </div>
         </div>
