@@ -1,6 +1,7 @@
 import { businessIntegration } from './businessIntegration';
 import { inventoryManager } from './inventoryUtils';
 import { storage } from './storage';
+import { backupRestoreSystem } from '@/core/BackupRestoreSystem';
 
 export class AppInitializer {
   private static instance: AppInitializer;
@@ -21,6 +22,8 @@ export class AppInitializer {
     try {
       console.log('Initializing app systems...');
 
+      // Ensure auto-backup every 5 minutes with retention of 20 versions
+      backupRestoreSystem.updateConfig({ scheduleEnabled: true, scheduleInterval: 5 });
       // 1. Check and fix storage health
       const healthCheck = storage.checkStorageHealth();
       if (!healthCheck.isHealthy) {

@@ -61,8 +61,8 @@ class BackupRestoreSystem {
     includeAnalytics: false,
     compression: 'basic',
     encryption: false,
-    scheduleEnabled: false,
-    scheduleInterval: 60 // كل ساعة
+    scheduleEnabled: true,
+    scheduleInterval: 5 // كل 5 دقائق
   };
 
   private scheduleTimer?: NodeJS.Timeout;
@@ -71,6 +71,10 @@ class BackupRestoreSystem {
   constructor() {
     this.loadConfig();
     this.loadBackupHistory();
+
+    if (this.config.scheduleEnabled) {
+      this.startScheduledBackup();
+    }
   }
 
   // تحميل الإعدادات
@@ -247,23 +251,39 @@ class BackupRestoreSystem {
   // حفظ النسخة الاحتياطية
   private async saveBackup(backup: BackupData): Promise<void> {
     try {
-      let backupString = JSON.stringify(backup);
+      // Prepare raw JSON for disk save
+      const rawJson = JSON.stringify(backup);
 
-      // ضغط البيانات حسب الإعدادات
+      // Validate integrity before any save (JSON + checksum)
+      const parsed = JSON.parse(rawJson) as BackupData;
+      const dataStringForCheck = JSON.stringify(parsed.data);
+      const checksumForCheck = await this.calculateChecksum(dataStringForCheck);
+      if (checksumForCheck !== parsed.metadata.checksum) {
+        throw new Error('Checksum mismatch - backup not saved');
+      }
+
+      // Optionally compress/encrypt for localStorage persistence
+      let storageString = rawJson;
       if (this.config.compression !== 'none') {
-        backupString = await this.compressData(backupString);
+        storageString = await this.compressData(storageString);
       }
-
-      // تشفير البيانات إذا لزم الأمر
       if (this.config.encryption) {
-        backupString = await this.encryptData(backupString);
+        storageString = await this.encryptData(storageString);
       }
 
-      // حفظ في التخزين المحلي
-      localStorage.setItem(`backup_${backup.metadata.id}`, backupString);
+      // Save to localStorage
+      localStorage.setItem(`backup_${backup.metadata.id}`, storageString);
 
-      // حفظ في IndexedDB للنسخ الكبيرة (اختياري)
-      // await this.saveToIndexedDB(backup.metadata.id, backupString);
+      // Also try to persist to disk via Electron (if available)
+      try {
+        // @ts-ignore - window type provided by electron.d.ts
+        const api = typeof window !== 'undefined' ? (window as any).electronAPI : undefined;
+        if (api && typeof api.saveBackup === 'function') {
+          await api.saveBackup(backup.metadata.id, JSON.stringify(backup, null, 2));
+        }
+      } catch (diskErr) {
+        console.warn('Disk backup save failed (non-fatal):', diskErr);
+      }
 
     } catch (error) {
       console.error('Failed to save backup:', error);
@@ -524,7 +544,7 @@ class BackupRestoreSystem {
 
   // تنظيف النسخ الاحتياطية القديمة
   private cleanupOldBackups(): void {
-    const maxBackups = 10; // الاحتفاظ بأحدث 10 نسخ
+    const maxBackups = 20; // الاحتفاظ بأحدث 20 نسخة
     
     if (this.backupHistory.length > maxBackups) {
       // ترتيب حسب التاريخ
